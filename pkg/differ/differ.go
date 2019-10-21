@@ -46,8 +46,8 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 	newObject := d.mustWrap(new)
 
 	if d.matches(oldObject) ||
-	   d.matches(newObject) {
-		fmt.Printf("updated: %s\n", object.GetMetadata().Name)
+		d.matches(newObject) {
+		fmt.Printf("updated: %s\n", newObject.GetMetadata().Name)
 	}
 }
 
