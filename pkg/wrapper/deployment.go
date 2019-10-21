@@ -1,0 +1,33 @@
+package wrapper
+
+import (
+	"fmt"
+
+	v1 "k8s.io/api/apps/v1"
+	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+type deployment struct {
+	d v1.Deployment
+}
+
+// NewDeploymentWrapper wraps a v1.Deployment behind a KubernetesObject interface
+func NewDeploymentWrapper(i interface{}) (KubernetesObject, error) {
+	d, ok := i.(v1.Deployment)
+
+	if !ok {
+		return nil, fmt.Errorf("Expected v1.Deployment received %v", i)
+	}
+
+	return &deployment{
+		d: d,
+	}, nil
+}
+
+func (d *deployment) GetMetadata() v1meta.ObjectMeta {
+	return d.d.ObjectMeta
+}
+
+func (d *deployment) GetObject() interface{} {
+	return d.d
+}

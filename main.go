@@ -2,12 +2,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"time"
 
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/joe-elliott/kubernetes-diff-logger/pkg/differ"
+	"github.com/joe-elliott/kubernetes-diff-logger/pkg/signals"
+	"github.com/joe-elliott/kubernetes-diff-logger/pkg/wrapper"
 )
 
 var (
@@ -36,12 +42,24 @@ func main() {
 		log.Fatalf("kubernetes.NewForConfig failed: %v", err)
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(config)
+	informerFactory := informers.NewSharedInformerFactory(client, resyncPeriod)
+	informer, wrap, err := informerForName("deployment", informerFactory)
 	if err != nil {
-		log.Fatalf("Error building kubernetes clientset: %s", err.Error())
+		log.Fatalf("informerForName failed: %v", err)
 	}
 
-	informerFactory := informers.NewSharedInformerFactory(client, resyncPeriod)
-	eventsInformer := informerFactory.Core().V1().Events()
+	differ.NewDiffer("", "", 30*time.Second, wrap, informer)
 
+	stop := signals.SetupSignalHandler()
+	informerFactory.Start(stop)
+}
+
+func informerForName(name string, i informers.SharedInformerFactory) (cache.SharedInformer, wrapper.Wrap, error) {
+
+	switch name {
+	case "deployment":
+		return i.Apps().V1().Deployments().Informer(), wrapper.NewDeploymentWrapper, nil
+	}
+
+	return nil, nil, fmt.Errorf("Unsupported informer name %s", name)
 }
