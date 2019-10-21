@@ -8,15 +8,15 @@ import (
 )
 
 type deployment struct {
-	d v1.Deployment
+	d *v1.Deployment
 }
 
 // WrapDeployment wraps a v1.Deployment behind a KubernetesObject interface
 func WrapDeployment(i interface{}) (KubernetesObject, error) {
-	d, ok := i.(v1.Deployment)
+	d, ok := i.(*v1.Deployment)
 
 	if !ok {
-		return nil, fmt.Errorf("Expected v1.Deployment received %v", i)
+		return nil, fmt.Errorf("Expected v1.Deployment received %T", i)
 	}
 
 	return &deployment{
