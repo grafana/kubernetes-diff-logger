@@ -2,25 +2,25 @@ package differ
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"k8s.io/client-go/tools/cache"
 
 	"github.com/joe-elliott/kubernetes-diff-logger/pkg/wrapper"
+	"github.com/ryanuber/go-glob"
 )
 
 // Differ is responsible for subscribing to an informer an filtering out events
 type Differ struct {
-	name      string
 	matchGlob string
 	wrap      wrapper.Wrap
 }
 
 // NewDiffer constructs a Differ
-func NewDiffer(n string, m string, r time.Duration, f wrapper.Wrap, i cache.SharedInformer) *Differ {
+func NewDiffer(m string, r time.Duration, f wrapper.Wrap, i cache.SharedInformer) *Differ {
 	d := &Differ{
 		matchGlob: m,
-		name:      n,
 		wrap:      f,
 	}
 
@@ -34,21 +34,41 @@ func NewDiffer(n string, m string, r time.Duration, f wrapper.Wrap, i cache.Shar
 }
 
 func (d *Differ) added(added interface{}) {
-	o, _ := d.wrap(added)
+	object := d.mustWrap(added)
 
-	fmt.Println(o)
+	if d.matches(object) {
+		fmt.Printf("added: %s\n", object.GetMetadata().Name)
+	}
 }
 
 func (d *Differ) updated(old interface{}, new interface{}) {
-	o, _ := d.wrap(old)
-	n, _ := d.wrap(new)
+	oldObject := d.mustWrap(old)
+	newObject := d.mustWrap(new)
 
-	fmt.Println(o)
-	fmt.Println(n)
+	if d.matches(oldObject) ||
+	   d.matches(newObject) {
+		fmt.Printf("updated: %s\n", object.GetMetadata().Name)
+	}
 }
 
 func (d *Differ) deleted(deleted interface{}) {
-	o, _ := d.wrap(deleted)
+	object := d.mustWrap(deleted)
 
-	fmt.Println(o)
+	if d.matches(object) {
+		fmt.Printf("deleted: %s\n", object.GetMetadata().Name)
+	}
+}
+
+func (d *Differ) matches(o wrapper.KubernetesObject) bool {
+	return glob.Glob(d.matchGlob, o.GetMetadata().Name)
+}
+
+func (d *Differ) mustWrap(i interface{}) wrapper.KubernetesObject {
+	o, err := d.wrap(i)
+
+	if err != nil {
+		log.Fatalf("Failed to wrap interface %v", o)
+	}
+
+	return o
 }

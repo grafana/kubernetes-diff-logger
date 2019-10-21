@@ -48,7 +48,7 @@ func main() {
 		log.Fatalf("informerForName failed: %v", err)
 	}
 
-	differ.NewDiffer("", "", 30*time.Second, wrap, informer)
+	differ.NewDiffer("", 30*time.Second, wrap, informer)
 
 	stop := signals.SetupSignalHandler()
 	informerFactory.Start(stop)
