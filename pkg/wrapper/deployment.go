@@ -11,8 +11,8 @@ type deployment struct {
 	d v1.Deployment
 }
 
-// NewDeploymentWrapper wraps a v1.Deployment behind a KubernetesObject interface
-func NewDeploymentWrapper(i interface{}) (KubernetesObject, error) {
+// WrapDeployment wraps a v1.Deployment behind a KubernetesObject interface
+func WrapDeployment(i interface{}) (KubernetesObject, error) {
 	d, ok := i.(v1.Deployment)
 
 	if !ok {

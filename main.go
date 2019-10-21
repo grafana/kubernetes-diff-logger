@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"k8s.io/client-go/informers"
@@ -42,23 +43,36 @@ func main() {
 		log.Fatalf("kubernetes.NewForConfig failed: %v", err)
 	}
 
+	stopCh := signals.SetupSignalHandler()
+
 	informerFactory := informers.NewSharedInformerFactory(client, resyncPeriod)
 	informer, wrap, err := informerForName("deployment", informerFactory)
 	if err != nil {
 		log.Fatalf("informerForName failed: %v", err)
 	}
+	informerFactory.Start(stopCh)
 
-	differ.NewDiffer("", wrap, informer)
+	var wg sync.WaitGroup
+	d := differ.NewDiffer("", wrap, informer)
 
-	stop := signals.SetupSignalHandler()
-	informerFactory.Start(stop)
+	wg.Add(1)
+	go func(differ *differ.Differ, wg sync.WaitGroup) {
+		defer wg.Done()
+
+		if err := d.Run(stopCh); err != nil {
+			log.Fatalf("Error running differ %v", err)
+		}
+
+	}(d, wg)
+
+	wg.Wait()
 }
 
 func informerForName(name string, i informers.SharedInformerFactory) (cache.SharedInformer, wrapper.Wrap, error) {
 
 	switch name {
 	case "deployment":
-		return i.Apps().V1().Deployments().Informer(), wrapper.NewDeploymentWrapper, nil
+		return i.Apps().V1().Deployments().Informer(), wrapper.WrapDeployment, nil
 	}
 
 	return nil, nil, fmt.Errorf("Unsupported informer name %s", name)

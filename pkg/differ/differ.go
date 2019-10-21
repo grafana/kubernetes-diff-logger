@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/tools/cache"
 
 	"github.com/joe-elliott/kubernetes-diff-logger/pkg/wrapper"
@@ -14,6 +15,7 @@ import (
 type Differ struct {
 	matchGlob string
 	wrap      wrapper.Wrap
+	informer  cache.SharedInformer
 }
 
 // NewDiffer constructs a Differ
@@ -21,15 +23,29 @@ func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer) *Differ {
 	d := &Differ{
 		matchGlob: m,
 		wrap:      f,
+		informer:  i,
 	}
 
-	i.AddEventHandler(cache.ResourceEventHandlerFuncs{
+	return d
+}
+
+// Run sets up eventhandlers, sync informer caches and blocks until stop is closed
+func (d *Differ) Run(stopCh <-chan struct{}) error {
+	defer runtime.HandleCrash()
+
+	if ok := cache.WaitForCacheSync(stopCh, d.informer.HasSynced); !ok {
+		return fmt.Errorf("failed to wait for caches to sync")
+	}
+
+	d.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc:    d.added,
 		UpdateFunc: d.updated,
 		DeleteFunc: d.deleted,
 	})
 
-	return d
+	<-stopCh
+
+	return nil
 }
 
 func (d *Differ) added(added interface{}) {
@@ -66,7 +82,7 @@ func (d *Differ) mustWrap(i interface{}) wrapper.KubernetesObject {
 	o, err := d.wrap(i)
 
 	if err != nil {
-		log.Fatalf("Failed to wrap interface %v", o)
+		log.Fatalf("Failed to wrap interface %v", err)
 	}
 
 	return o
