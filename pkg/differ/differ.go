@@ -16,14 +16,16 @@ type Differ struct {
 	matchGlob string
 	wrap      wrapper.Wrap
 	informer  cache.SharedInformer
+	output    Output
 }
 
 // NewDiffer constructs a Differ
-func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer) *Differ {
+func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer, o Output) *Differ {
 	d := &Differ{
 		matchGlob: m,
 		wrap:      f,
 		informer:  i,
+		output:    o,
 	}
 
 	return d
@@ -52,7 +54,7 @@ func (d *Differ) added(added interface{}) {
 	object := d.mustWrap(added)
 
 	if d.matches(object) {
-		fmt.Printf("added: %s\n", object.GetMetadata().Name)
+		d.output.WriteAdded(object)
 	}
 }
 
@@ -62,7 +64,7 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 
 	if d.matches(oldObject) ||
 		d.matches(newObject) {
-		fmt.Printf("updated: %s\n", newObject.GetMetadata().Name)
+		d.output.WriteUpdated(newObject, oldObject)
 	}
 }
 
@@ -70,7 +72,7 @@ func (d *Differ) deleted(deleted interface{}) {
 	object := d.mustWrap(deleted)
 
 	if d.matches(object) {
-		fmt.Printf("deleted: %s\n", object.GetMetadata().Name)
+		d.output.WriteDeleted(object)
 	}
 }
 

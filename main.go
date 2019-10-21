@@ -53,17 +53,18 @@ func main() {
 	informerFactory.Start(stopCh)
 
 	var wg sync.WaitGroup
-	d := differ.NewDiffer("", wrap, informer)
+	output := differ.NewOutput(differ.Text)
+	d := differ.NewDiffer("*", wrap, informer, output)
 
 	wg.Add(1)
-	go func(differ *differ.Differ, wg sync.WaitGroup) {
+	go func(differ *differ.Differ) {
 		defer wg.Done()
 
 		if err := d.Run(stopCh); err != nil {
 			log.Fatalf("Error running differ %v", err)
 		}
 
-	}(d, wg)
+	}(d)
 
 	wg.Wait()
 }
