@@ -3,7 +3,6 @@ package differ
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"k8s.io/client-go/tools/cache"
 
@@ -18,17 +17,17 @@ type Differ struct {
 }
 
 // NewDiffer constructs a Differ
-func NewDiffer(m string, r time.Duration, f wrapper.Wrap, i cache.SharedInformer) *Differ {
+func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer) *Differ {
 	d := &Differ{
 		matchGlob: m,
 		wrap:      f,
 	}
 
-	i.AddEventHandlerWithResyncPeriod(cache.ResourceEventHandlerFuncs{
+	i.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc:    d.added,
 		UpdateFunc: d.updated,
 		DeleteFunc: d.deleted,
-	}, r)
+	})
 
 	return d
 }
