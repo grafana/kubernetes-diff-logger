@@ -7,6 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/tools/cache"
 
+	"github.com/go-test/deep"
 	"github.com/joe-elliott/kubernetes-diff-logger/pkg/wrapper"
 	"github.com/ryanuber/go-glob"
 )
@@ -54,7 +55,7 @@ func (d *Differ) added(added interface{}) {
 	object := d.mustWrap(added)
 
 	if d.matches(object) {
-		d.output.WriteAdded(object)
+		d.output.WriteAdded(object.GetMetadata().Name)
 	}
 }
 
@@ -62,9 +63,10 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 	oldObject := d.mustWrap(old)
 	newObject := d.mustWrap(new)
 
-	if d.matches(oldObject) ||
-		d.matches(newObject) {
-		d.output.WriteUpdated(newObject, oldObject)
+	if d.matches(oldObject) || d.matches(newObject) {
+		if diff := deep.Equal(oldObject.GetObject(), newObject.GetObject()); diff != nil {
+			d.output.WriteUpdated(newObject.GetMetadata().Name, diff)
+		}
 	}
 }
 
@@ -72,7 +74,7 @@ func (d *Differ) deleted(deleted interface{}) {
 	object := d.mustWrap(deleted)
 
 	if d.matches(object) {
-		d.output.WriteDeleted(object)
+		d.output.WriteDeleted(object.GetMetadata().Name)
 	}
 }
 

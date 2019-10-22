@@ -2,15 +2,13 @@ package differ
 
 import (
 	"fmt"
-
-	"github.com/joe-elliott/kubernetes-diff-logger/pkg/wrapper"
 )
 
 // Output abstracts a straightforward way to write
 type Output interface {
-	WriteAdded(added wrapper.KubernetesObject)
-	WriteDeleted(deleted wrapper.KubernetesObject)
-	WriteUpdated(old wrapper.KubernetesObject, new wrapper.KubernetesObject)
+	WriteAdded(name string)
+	WriteDeleted(name string)
+	WriteUpdated(name string, diffs []string)
 }
 
 // OutputFormat encodes
@@ -32,14 +30,14 @@ func NewOutput(fmt OutputFormat) Output {
 	}
 }
 
-func (f *output) WriteAdded(added wrapper.KubernetesObject) {
-	fmt.Printf("added : %s\n", added.GetMetadata().Name)
+func (f *output) WriteAdded(name string) {
+	fmt.Printf("added : %s\n", name)
 }
 
-func (f *output) WriteDeleted(deleted wrapper.KubernetesObject) {
-	fmt.Printf("deleted : %s\n", deleted.GetMetadata().Name)
+func (f *output) WriteDeleted(name string) {
+	fmt.Printf("deleted : %s\n", name)
 }
 
-func (f *output) WriteUpdated(old wrapper.KubernetesObject, new wrapper.KubernetesObject) {
-	fmt.Printf("updated : %s\n", new.GetMetadata().Name)
+func (f *output) WriteUpdated(name string, diffs []string) {
+	fmt.Printf("updated : %s %v\n", name, diffs)
 }
