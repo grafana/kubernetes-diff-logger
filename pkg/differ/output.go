@@ -2,6 +2,7 @@ package differ
 
 import (
 	"fmt"
+	"time"
 )
 
 // Output abstracts a straightforward way to write
@@ -39,7 +40,7 @@ func (f *output) WriteAdded(name string) {
 		return
 	}
 
-	fmt.Printf("added : %s\n", name)
+	fmt.Printf("%s added : %s\n", time.Now().UTC().Format(time.RFC3339), name)
 }
 
 func (f *output) WriteDeleted(name string) {
@@ -47,9 +48,9 @@ func (f *output) WriteDeleted(name string) {
 		return
 	}
 
-	fmt.Printf("deleted : %s\n", name)
+	fmt.Printf("%s deleted : %s\n", time.Now().UTC().Format(time.RFC3339), name)
 }
 
 func (f *output) WriteUpdated(name string, diffs []string) {
-	fmt.Printf("updated : %s %v\n", name, diffs)
+	fmt.Printf("%s updated : %s %v\n", time.Now().UTC().Format(time.RFC3339), name, diffs)
 }
