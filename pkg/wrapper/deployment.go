@@ -28,6 +28,6 @@ func (d *deployment) GetMetadata() v1meta.ObjectMeta {
 	return d.d.ObjectMeta
 }
 
-func (d *deployment) GetObject() interface{} {
-	return d.d
+func (d *deployment) GetObjectSpec() interface{} {
+	return d.d.Spec
 }

@@ -64,7 +64,7 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 	newObject := d.mustWrap(new)
 
 	if d.matches(oldObject) || d.matches(newObject) {
-		if diff := deep.Equal(oldObject.GetObject(), newObject.GetObject()); diff != nil {
+		if diff := deep.Equal(oldObject.GetObjectSpec(), newObject.GetObjectSpec()); diff != nil {
 			d.output.WriteUpdated(newObject.GetMetadata().Name, diff)
 		}
 	}

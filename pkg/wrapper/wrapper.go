@@ -7,7 +7,7 @@ import (
 // KubernetesObject presents a consistent way of interacting with various Kubernetes objects
 type KubernetesObject interface {
 	GetMetadata() v1.ObjectMeta
-	GetObject() interface{}
+	GetObjectSpec() interface{}
 }
 
 // Wrap accepts an empty interface and returns a KubernetesObject
