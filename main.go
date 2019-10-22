@@ -21,12 +21,16 @@ var (
 	masterURL    string
 	kubeconfig   string
 	resyncPeriod time.Duration
+	nameFilter   string
+	namespace    string
 )
 
 func init() {
 	flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 	flag.DurationVar(&resyncPeriod, "resync", time.Second*30, "Periodic interval in which to force resync objects.")
+	flag.StringVar(&nameFilter, "name-filter", "*", "Glob based filter.  Only deployments matching will be processed.")
+	flag.StringVar(&namespace, "namespace", "", "Filter updates by namespace.  Leave empty to watch all.")
 }
 
 func main() {
@@ -37,24 +41,29 @@ func main() {
 		log.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
-	// creates the clientset
 	client, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Fatalf("kubernetes.NewForConfig failed: %v", err)
 	}
 
-	stopCh := signals.SetupSignalHandler()
+	var informerFactory informers.SharedInformerFactory
+	if namespace == "" {
+		informerFactory = informers.NewSharedInformerFactory(client, resyncPeriod)
+	} else {
+		informerFactory = informers.NewFilteredSharedInformerFactory(client, resyncPeriod, namespace, nil)
+	}
 
-	informerFactory := informers.NewSharedInformerFactory(client, resyncPeriod)
 	informer, wrap, err := informerForName("deployment", informerFactory)
 	if err != nil {
 		log.Fatalf("informerForName failed: %v", err)
 	}
+
+	stopCh := signals.SetupSignalHandler()
 	informerFactory.Start(stopCh)
 
 	var wg sync.WaitGroup
 	output := differ.NewOutput(differ.Text)
-	d := differ.NewDiffer("*", wrap, informer, output)
+	d := differ.NewDiffer(nameFilter, wrap, informer, output)
 
 	wg.Add(1)
 	go func(differ *differ.Differ) {
