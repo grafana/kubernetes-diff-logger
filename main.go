@@ -23,6 +23,8 @@ var (
 	resyncPeriod time.Duration
 	nameFilter   string
 	namespace    string
+	logAdded     bool
+	logDeleted   bool
 )
 
 func init() {
@@ -31,6 +33,8 @@ func init() {
 	flag.DurationVar(&resyncPeriod, "resync", time.Second*30, "Periodic interval in which to force resync objects.")
 	flag.StringVar(&nameFilter, "name-filter", "*", "Glob based filter.  Only deployments matching will be processed.")
 	flag.StringVar(&namespace, "namespace", "", "Filter updates by namespace.  Leave empty to watch all.")
+	flag.BoolVar(&logAdded, "log-added", false, "Log when deployments are added.")
+	flag.BoolVar(&logDeleted, "log-deleted", false, "Log when deployments are deleted.")
 }
 
 func main() {
@@ -62,7 +66,7 @@ func main() {
 	informerFactory.Start(stopCh)
 
 	var wg sync.WaitGroup
-	output := differ.NewOutput(differ.Text)
+	output := differ.NewOutput(differ.Text, logAdded, logDeleted)
 	d := differ.NewDiffer(nameFilter, wrap, informer, output)
 
 	wg.Add(1)

@@ -20,21 +20,33 @@ const (
 )
 
 type output struct {
-	format OutputFormat
+	format     OutputFormat
+	logAdded   bool
+	logDeleted bool
 }
 
 // NewOutput constructs a new outputter
-func NewOutput(fmt OutputFormat) Output {
+func NewOutput(fmt OutputFormat, logAdded bool, logDeleted bool) Output {
 	return &output{
-		format: fmt,
+		format:     fmt,
+		logAdded:   logAdded,
+		logDeleted: logDeleted,
 	}
 }
 
 func (f *output) WriteAdded(name string) {
+	if !f.logAdded {
+		return
+	}
+
 	fmt.Printf("added : %s\n", name)
 }
 
 func (f *output) WriteDeleted(name string) {
+	if !f.logDeleted {
+		return
+	}
+
 	fmt.Printf("deleted : %s\n", name)
 }
 
