@@ -36,6 +36,7 @@ type jsonformat struct {
 	Verb       string `json:"verb"`
 	ObjectType string `json:"type"`
 	Notes      string `json:"notes"`
+	Name       string `json:"name"`
 }
 
 // NewOutput constructs a new outputter
@@ -75,6 +76,7 @@ func (f *output) write(name string, verb string, objectType string, etc []string
 	case JSON:
 		bytes, err := json.Marshal(jsonformat{
 			Timestamp:  time.Now().UTC().Format(time.RFC3339),
+			Name:       name,
 			Verb:       verb,
 			ObjectType: objectType,
 			Notes:      fmt.Sprintf("%v", etc),
