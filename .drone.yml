@@ -1,5 +1,5 @@
 kind: pipeline
-name: check
+name: docker-push
 steps:
 - name: docker
   image: plugins/docker
