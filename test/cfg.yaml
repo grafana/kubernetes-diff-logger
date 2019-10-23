@@ -1,0 +1,7 @@
+differs:
+- nameFilter: "*"
+  type: "deployment"
+- nameFilter: "*"
+  type: "statefulset"
+- nameFilter: "*"
+  type: "daemonset"

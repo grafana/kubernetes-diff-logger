@@ -3,10 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"sync"
 	"time"
 
+	"gopkg.in/yaml.v2"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
@@ -15,33 +17,33 @@ import (
 	"github.com/joe-elliott/kubernetes-diff-logger/pkg/differ"
 	"github.com/joe-elliott/kubernetes-diff-logger/pkg/signals"
 	"github.com/joe-elliott/kubernetes-diff-logger/pkg/wrapper"
+	"github.com/pkg/errors"
 )
 
 var (
 	masterURL    string
 	kubeconfig   string
 	resyncPeriod time.Duration
-	nameFilter   string
 	namespace    string
-	objectType   string
 	logAdded     bool
 	logDeleted   bool
+	configFile   string
 )
 
 func init() {
 	flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 	flag.DurationVar(&resyncPeriod, "resync", time.Second*30, "Periodic interval in which to force resync objects.")
-	flag.StringVar(&nameFilter, "name-filter", "*", "Glob based filter.  Only deployments matching will be processed.")
 	flag.StringVar(&namespace, "namespace", "", "Filter updates by namespace.  Leave empty to watch all.")
-	flag.StringVar(&objectType, "type", "deployment", "Kubernetes object type to watch. (statefulset, daemonset, deployment)")
 	flag.BoolVar(&logAdded, "log-added", false, "Log when deployments are added.")
 	flag.BoolVar(&logDeleted, "log-deleted", false, "Log when deployments are deleted.")
+	flag.StringVar(&configFile, "config", "", "Path to config file.  Required.")
 }
 
 func main() {
 	flag.Parse()
 
+	// build k8s client
 	config, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
 	if err != nil {
 		log.Fatalf("Error building kubeconfig: %s", err.Error())
@@ -52,6 +54,7 @@ func main() {
 		log.Fatalf("kubernetes.NewForConfig failed: %v", err)
 	}
 
+	// build shared informer
 	var informerFactory informers.SharedInformerFactory
 	if namespace == "" {
 		informerFactory = informers.NewSharedInformerFactory(client, resyncPeriod)
@@ -59,28 +62,38 @@ func main() {
 		informerFactory = informers.NewFilteredSharedInformerFactory(client, resyncPeriod, namespace, nil)
 	}
 
-	informer, wrap, err := informerForName(objectType, informerFactory)
+	stopCh := signals.SetupSignalHandler()
+
+	// load config
+	cfg := DefaultConfig()
+	err = loadConfig(configFile, &cfg)
 	if err != nil {
-		log.Fatalf("informerForName failed: %v", err)
+		log.Fatalf("loadConfig failed: %v", err)
 	}
 
-	stopCh := signals.SetupSignalHandler()
-	informerFactory.Start(stopCh)
-
+	// build differs
 	var wg sync.WaitGroup
-	output := differ.NewOutput(differ.Text, logAdded, logDeleted)
-	d := differ.NewDiffer(nameFilter, wrap, informer, output)
-
-	wg.Add(1)
-	go func(differ *differ.Differ) {
-		defer wg.Done()
-
-		if err := d.Run(stopCh); err != nil {
-			log.Fatalf("Error running differ %v", err)
+	for _, cfgDiffer := range cfg.Differs {
+		informer, wrap, err := informerForName(cfgDiffer.Type, informerFactory)
+		if err != nil {
+			log.Fatalf("informerForName failed: %v", err)
 		}
 
-	}(d)
+		output := differ.NewOutput(differ.Text, logAdded, logDeleted)
+		d := differ.NewDiffer(cfgDiffer.NameFilter, wrap, informer, output)
 
+		wg.Add(1)
+		go func(differ *differ.Differ) {
+			defer wg.Done()
+
+			if err := d.Run(stopCh); err != nil {
+				log.Fatalf("Error running differ %v", err)
+			}
+
+		}(d)
+	}
+
+	informerFactory.Start(stopCh)
 	wg.Wait()
 }
 
@@ -96,4 +109,13 @@ func informerForName(name string, i informers.SharedInformerFactory) (cache.Shar
 	}
 
 	return nil, nil, fmt.Errorf("Unsupported informer name %s", name)
+}
+
+func loadConfig(filename string, cfg *Config) error {
+	buf, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return errors.Wrap(err, "Error reading config file")
+	}
+
+	return yaml.UnmarshalStrict(buf, &cfg)
 }

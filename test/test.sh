@@ -7,7 +7,7 @@ go build ../
 
 sleep 5
 
-./kubernetes-diff-logger -kubeconfig=$(k3d get-kubeconfig --name="${K3D_NAME}") -namespace=default -type=$1
+./kubernetes-diff-logger -kubeconfig=$(k3d get-kubeconfig --name="${K3D_NAME}") -namespace=default -config=./cfg.yaml
 
 k3d delete --name $K3D_NAME
 rm ./kubernetes-diff-logger
