@@ -1,0 +1,19 @@
+kind: pipeline
+name: check
+steps:
+- name: docker
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    dockerfile: Dockerfile
+    repo: grafana/kubernetes-diff-logger
+    password:
+      from_secret: docker_password
+    username:
+      from_secret: docker_username
+workspace:
+  base: /
+trigger:
+  ref:
+    include:
+    - refs/tags/v*
