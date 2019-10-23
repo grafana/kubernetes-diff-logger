@@ -23,6 +23,7 @@ var (
 	resyncPeriod time.Duration
 	nameFilter   string
 	namespace    string
+	objectType   string
 	logAdded     bool
 	logDeleted   bool
 )
@@ -33,6 +34,7 @@ func init() {
 	flag.DurationVar(&resyncPeriod, "resync", time.Second*30, "Periodic interval in which to force resync objects.")
 	flag.StringVar(&nameFilter, "name-filter", "*", "Glob based filter.  Only deployments matching will be processed.")
 	flag.StringVar(&namespace, "namespace", "", "Filter updates by namespace.  Leave empty to watch all.")
+	flag.StringVar(&objectType, "type", "deployment", "Kubernetes object type to watch. (statefulset, daemonset, deployment)")
 	flag.BoolVar(&logAdded, "log-added", false, "Log when deployments are added.")
 	flag.BoolVar(&logDeleted, "log-deleted", false, "Log when deployments are deleted.")
 }
@@ -57,7 +59,7 @@ func main() {
 		informerFactory = informers.NewFilteredSharedInformerFactory(client, resyncPeriod, namespace, nil)
 	}
 
-	informer, wrap, err := informerForName("deployment", informerFactory)
+	informer, wrap, err := informerForName(objectType, informerFactory)
 	if err != nil {
 		log.Fatalf("informerForName failed: %v", err)
 	}
@@ -87,6 +89,10 @@ func informerForName(name string, i informers.SharedInformerFactory) (cache.Shar
 	switch name {
 	case "deployment":
 		return i.Apps().V1().Deployments().Informer(), wrapper.WrapDeployment, nil
+	case "statefulset":
+		return i.Apps().V1().StatefulSets().Informer(), wrapper.WrapStatefulSet, nil
+	case "daemonset":
+		return i.Apps().V1().DaemonSets().Informer(), wrapper.WrapDaemonSet, nil
 	}
 
 	return nil, nil, fmt.Errorf("Unsupported informer name %s", name)
