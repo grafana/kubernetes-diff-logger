@@ -56,5 +56,5 @@ func (f *output) WriteUpdated(name string, objectType string, diffs []string) {
 }
 
 func (f *output) write(name string, verb string, objectType string, etc interface{}) {
-	fmt.Printf("%s %s (%s) %s : %s %v\n", time.Now().UTC().Format(time.RFC3339), name, objectType, verb, name, etc)
+	fmt.Printf("%s %s : %s (%s) %v\n", time.Now().UTC().Format(time.RFC3339), verb, name, objectType, etc)
 }
