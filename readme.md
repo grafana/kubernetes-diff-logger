@@ -1,6 +1,6 @@
 # kubernetes-diff-logger
 
-This simple application is designed to watch Kubernetes objects and log diffs when they occur.  
+This simple application is designed to watch Kubernetes objects and log diffs when they occur.  It is designed to log changes to Kubernetes objects in a clean way for storage and processing in [Loki](https://github.com/grafana/loki/).
 
 ## example
 
