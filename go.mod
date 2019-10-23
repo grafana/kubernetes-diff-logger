@@ -3,6 +3,7 @@ module github.com/joe-elliott/kubernetes-diff-logger
 go 1.13
 
 require (
+	github.com/apex/log v1.1.1
 	github.com/go-test/deep v1.0.4
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect

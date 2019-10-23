@@ -79,7 +79,7 @@ func main() {
 			log.Fatalf("informerForName failed: %v", err)
 		}
 
-		output := differ.NewOutput(differ.Text, logAdded, logDeleted)
+		output := differ.NewOutput(differ.JSON, logAdded, logDeleted)
 		d := differ.NewDiffer(cfgDiffer.NameFilter, wrap, informer, output)
 
 		wg.Add(1)

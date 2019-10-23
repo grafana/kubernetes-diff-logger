@@ -6,8 +6,8 @@ This simple application is designed to watch Kubernetes objects and log diffs wh
 
 ```
 ./kubernetes-diff-logger -namespace=default
-2019-10-23T14:40:06Z updated : nginx (deployment) [Replicas: 1 != 2]
-2019-10-23T14:40:06Z updated : nginx (deployment) [Template.Spec.Containers.slice[0].Image: nginx != nginx:latest]
+{"timestamp":"2019-10-23T16:57:23Z","verb":"updated","type":"deployment","notes":"[Replicas: 1 != 2]"}
+{"timestamp":"2019-10-23T16:57:35Z","verb":"updated","type":"deployment","notes":"[Template.Spec.Containers.slice[0].Image: nginx != nginx:latest]"}
 ```
 
 ## usage
