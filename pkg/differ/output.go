@@ -7,9 +7,9 @@ import (
 
 // Output abstracts a straightforward way to write
 type Output interface {
-	WriteAdded(name string)
-	WriteDeleted(name string)
-	WriteUpdated(name string, diffs []string)
+	WriteAdded(name string, objectType string)
+	WriteDeleted(name string, objectType string)
+	WriteUpdated(name string, objectType string, diffs []string)
 }
 
 // OutputFormat encodes
@@ -35,22 +35,26 @@ func NewOutput(fmt OutputFormat, logAdded bool, logDeleted bool) Output {
 	}
 }
 
-func (f *output) WriteAdded(name string) {
+func (f *output) WriteAdded(name string, objectType string) {
 	if !f.logAdded {
 		return
 	}
 
-	fmt.Printf("%s added : %s\n", time.Now().UTC().Format(time.RFC3339), name)
+	f.write(name, "added", objectType, nil)
 }
 
-func (f *output) WriteDeleted(name string) {
+func (f *output) WriteDeleted(name string, objectType string) {
 	if !f.logDeleted {
 		return
 	}
 
-	fmt.Printf("%s deleted : %s\n", time.Now().UTC().Format(time.RFC3339), name)
+	f.write(name, "deleted", objectType, nil)
 }
 
-func (f *output) WriteUpdated(name string, diffs []string) {
-	fmt.Printf("%s updated : %s %v\n", time.Now().UTC().Format(time.RFC3339), name, diffs)
+func (f *output) WriteUpdated(name string, objectType string, diffs []string) {
+	f.write(name, "updated", objectType, diffs)
+}
+
+func (f *output) write(name string, verb string, objectType string, etc interface{}) {
+	fmt.Printf("%s %s (%s) %s : %s %v\n", time.Now().UTC().Format(time.RFC3339), name, objectType, verb, name, etc)
 }

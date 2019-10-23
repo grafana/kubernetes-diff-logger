@@ -31,3 +31,7 @@ func (d *deployment) GetMetadata() v1meta.ObjectMeta {
 func (d *deployment) GetObjectSpec() interface{} {
 	return d.d.Spec
 }
+
+func (d *deployment) GetType() string {
+	return "deployment"
+}

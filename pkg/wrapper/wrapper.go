@@ -8,6 +8,7 @@ import (
 type KubernetesObject interface {
 	GetMetadata() v1.ObjectMeta
 	GetObjectSpec() interface{}
+	GetType() string
 }
 
 // Wrap accepts an empty interface and returns a KubernetesObject
