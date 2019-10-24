@@ -1,8 +1,8 @@
 K3D_NAME=k8s-diff-logger
 
 # requires k3d
-k3d create --name $K3D_NAME
-
+k3d create --name $K3D_NAME --api-port=6444
+ 
 go build ../
 
 sleep 5
