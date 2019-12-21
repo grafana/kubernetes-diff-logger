@@ -1,4 +1,4 @@
-module github.com/joe-elliott/kubernetes-diff-logger
+module github.com/grafana/kubernetes-diff-logger
 
 go 1.13
 
