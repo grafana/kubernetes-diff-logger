@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2019-10-30T21:56:10Z"
+  name: kube-diff-logger
+  namespace: default
+data:
+  config.yml: |
+    differs:
+    - nameFilter: "*"
+      type: "deployment"
+    - nameFilter: "*"
+      type: "statefulset"
+    - nameFilter: "*"
+      type: "daemonset"

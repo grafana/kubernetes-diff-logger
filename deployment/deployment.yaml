@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: kube-diff-logger
+  name: kube-diff-logger
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kube-diff-logger
+  template:
+    metadata:
+      labels:
+        name: kube-diff-logger
+    spec:
+      containers:
+      - name: kube-diff-logger
+        command:
+        - /app/app
+        - -config=/etc/kube-diff-logger/config.yml
+        image: grafana/kubernetes-diff-logger:latest       
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: /etc/kube-diff-logger
+          name: kube-diff-logger
+      serviceAccountName: kube-diff-logger
+      volumes:
+      - configMap:
+          name: kube-diff-logger
+        name: kube-diff-logger
