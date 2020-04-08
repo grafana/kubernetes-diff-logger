@@ -2,7 +2,7 @@
 
 This simple application is designed to watch Kubernetes objects and log diffs when they occur.  It is designed to log changes to Kubernetes objects in a clean way for storage and processing in [Loki](https://github.com/grafana/loki/).
 
-## example
+## Example
 
 ```
 ./kubernetes-diff-logger -namespace=default
@@ -10,7 +10,9 @@ This simple application is designed to watch Kubernetes objects and log diffs wh
 {"timestamp":"2019-10-23T16:57:35Z","verb":"updated","type":"deployment","notes":"[Template.Spec.Containers.slice[0].Image: nginx != nginx:latest]", "name":"nginx"}}
 ```
 
-## usage
+See [Deployment](./deployment) for example yaml to deploy to Kubernetes.  The example will monitor and log information about all namespaces.
+
+## Usage
 
 ```
 Usage of ./kubernetes-diff-logger:
@@ -30,7 +32,7 @@ Usage of ./kubernetes-diff-logger:
     	Periodic interval in which to force resync objects. (default 30s)
 ```
 
-## config file
+## Config File
 
 ```
 differs:
