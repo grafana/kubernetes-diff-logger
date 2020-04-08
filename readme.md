@@ -10,7 +10,7 @@ This simple application is designed to watch Kubernetes objects and log diffs wh
 {"timestamp":"2019-10-23T16:57:35Z","verb":"updated","type":"deployment","notes":"[Template.Spec.Containers.slice[0].Image: nginx != nginx:latest]", "name":"nginx"}}
 ```
 
-See [Deployment](./deployment) for example yaml to deploy to Kubernetes.  The example will monitor and log information about all namespaces.
+See [Deployment](./deployment) for example yaml to deploy to Kubernetes.  The example will monitor and log information about changes in all namespaces.
 
 ## Usage
 
