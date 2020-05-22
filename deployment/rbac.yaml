@@ -29,4 +29,5 @@ roleRef:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  namespace: default
   name: kube-diff-logger
