@@ -5,10 +5,12 @@ metadata:
 rules:
 - apiGroups:
   - apps
+  - batch
   resources:
   - daemonsets
   - deployments
   - statefulsets
+  - cronjobs
   verbs:
   - list
   - watch
