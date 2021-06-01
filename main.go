@@ -106,6 +106,8 @@ func informerForName(name string, i informers.SharedInformerFactory) (cache.Shar
 		return i.Apps().V1().StatefulSets().Informer(), wrapper.WrapStatefulSet, nil
 	case "daemonset":
 		return i.Apps().V1().DaemonSets().Informer(), wrapper.WrapDaemonSet, nil
+	case "cronjob":
+		return i.Batch().V1beta1().CronJobs().Informer(), wrapper.WrapCronJob, nil
 	}
 
 	return nil, nil, fmt.Errorf("Unsupported informer name %s", name)
