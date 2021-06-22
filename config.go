@@ -9,7 +9,7 @@ type Config struct {
 type DifferConfig struct {
 	// NameFilter is a glob-based filter for the object type
 	NameFilter string `yaml:"nameFilter"`
-	// Type specifies the Kubernetes object type to watch.  Currently supporting statefulsets, daemonsets, deployments
+	// Type specifies the Kubernetes object type to watch. Currently supporting statefulsets, daemonsets, deployments, pods.
 	Type string `yaml:"type"`
 }
 

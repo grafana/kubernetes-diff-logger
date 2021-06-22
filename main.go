@@ -100,6 +100,8 @@ func main() {
 func informerForName(name string, i informers.SharedInformerFactory) (cache.SharedInformer, wrapper.Wrap, error) {
 
 	switch name {
+	case "pod":
+		return i.Core().V1().Pods().Informer(), wrapper.WrapPod, nil
 	case "deployment":
 		return i.Apps().V1().Deployments().Informer(), wrapper.WrapDeployment, nil
 	case "statefulset":

@@ -2,6 +2,8 @@ differs:
   - nameFilter: "*"
     type: "deployment"
   - nameFilter: "*"
+    type: "pod"
+  - nameFilter: "*"
     type: "statefulset"
   - nameFilter: "*"
     type: "cronjob"
