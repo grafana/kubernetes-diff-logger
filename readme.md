@@ -34,7 +34,7 @@ Usage of ./kubernetes-diff-logger:
 
 ## Config File
 
-```
+```yaml
 differs:
 - nameFilter: "*"
   type: "deployment"
