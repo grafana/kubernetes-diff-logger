@@ -59,7 +59,7 @@ func main() {
 	if namespace == "" {
 		informerFactory = informers.NewSharedInformerFactory(client, resyncPeriod)
 	} else {
-		informerFactory = informers.NewFilteredSharedInformerFactory(client, resyncPeriod, namespace, nil)
+		informerFactory = informers.NewSharedInformerFactoryWithOptions(client, resyncPeriod, informers.WithNamespace(namespace))
 	}
 
 	stopCh := signals.SetupSignalHandler()
