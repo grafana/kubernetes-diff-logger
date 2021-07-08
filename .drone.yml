@@ -1,4 +1,6 @@
+---
 kind: pipeline
+type: docker
 name: docker-push
 steps:
 - name: docker
@@ -31,3 +33,9 @@ name: docker_password
 get:
   path: infra/data/ci/docker_hub
   name: password
+
+---
+kind: signature
+hmac: 80793c11d6da6f16d13541ac22d287ad5d7f51bc72512497f9f0c46b9c6ccda0
+
+...
