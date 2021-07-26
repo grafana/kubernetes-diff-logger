@@ -12,5 +12,3 @@ data:
       type: "statefulset"
     - nameFilter: "*"
       type: "daemonset"
-    - nameFilter: "*"
-      type: "cronjob"
