@@ -1,1 +1,4 @@
+.autoenv.zsh
+.tool-versions
+app
 kubernetes-diff-logger
