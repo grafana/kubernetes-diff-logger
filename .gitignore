@@ -2,3 +2,4 @@
 .tool-versions
 app
 kubernetes-diff-logger
+.vscode/
