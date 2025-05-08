@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/apex/log v1.9.0
-	github.com/go-test/deep v1.0.7
+	github.com/go-test/deep v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/ryanuber/go-glob v1.0.0
 	gopkg.in/yaml.v2 v2.4.0
