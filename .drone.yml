@@ -4,7 +4,7 @@ type: docker
 name: docker-push
 steps:
 - name: docker
-  image: plugins/docker
+  image: plugins/docker@sha256:4e482ef91fb2695d658a85c60772d7f75f931e0883e23ec0954f0bc17ccc0663
   settings:
     auto_tag: true
     dockerfile: Dockerfile
