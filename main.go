@@ -11,8 +11,10 @@ import (
 	"gopkg.in/yaml.v2"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/grafana/kubernetes-diff-logger/pkg/differ"
 	"github.com/grafana/kubernetes-diff-logger/pkg/signals"
@@ -44,7 +46,7 @@ func main() {
 	flag.Parse()
 
 	// build k8s client
-	config, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
+	config, err := buildConfigFromFlags(masterURL, kubeconfig)
 	if err != nil {
 		log.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
@@ -120,4 +122,22 @@ func loadConfig(filename string, cfg *Config) error {
 	}
 
 	return yaml.UnmarshalStrict(buf, &cfg)
+}
+
+// buildConfigFromFlags is a helper function that builds configs from a master
+// url or a kubeconfig filepath. These are passed in as command line flags for cluster
+// components. Warnings should reflect this usage. If neither masterUrl nor kubeconfigPath
+// are passed in we fall back to inClusterConfig. If inClusterConfig fails, we fall back
+// to the default config.
+func buildConfigFromFlags(masterUrl, kubeconfigPath string) (*rest.Config, error) {
+	if kubeconfigPath == "" && masterUrl == "" {
+		kubeconfig, err := rest.InClusterConfig()
+		if err == nil {
+			return kubeconfig, nil
+		}
+		log.Printf("error creating inClusterConfig, falling back to default config: %s", err)
+	}
+	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
+		&clientcmd.ConfigOverrides{ClusterInfo: api.Cluster{Server: masterUrl}}).ClientConfig()
 }
