@@ -1,4 +1,4 @@
-FROM golang:1.25.6 AS build
+FROM golang:1.27.0@sha256:4013ae0f9e7994f8535c58c811f8f863fbed38b72e0d51e6592156f758d66146 AS build
 WORKDIR /src
 
 COPY . .
