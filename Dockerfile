@@ -5,13 +5,11 @@ COPY . .
 RUN go mod download && \
     CGO_ENABLED=0 GOOS=linux go build -a -o app .
 
-FROM alpine:latest
+FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
 
-RUN addgroup -g 1000 app && \
-    adduser -u 1000 -h /app -G app -S app
 WORKDIR /app
-USER app
+USER 65532:65532
 
 COPY --from=build /src/app .
 
-CMD ["./app"] 
+CMD ["./app"]
