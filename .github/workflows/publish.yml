@@ -1,0 +1,33 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    # Semver tags publish the Dockerfile to the prod GAR repository.
+    # docker-build-push-image (registries: gar) is shared-workflows' GAR push
+    # path; it wraps login-to-gar and authenticates as the repo's WIF principal.
+    - name: Build and push to GAR
+      uses: grafana/shared-workflows/actions/docker-build-push-image@210fd8662ec62738ab1ae6d890ef3ffed5a77a86 # docker-build-push-image/v0.3.5
+      with:
+        registries: gar
+        gar-environment: prod
+        gar-image: kubernetes-diff-logger
+        gar-repository: docker-kubernetes-diff-logger-prod
+        file: Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: type=ref,event=tag
