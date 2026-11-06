@@ -21,7 +21,7 @@ jobs:
     # docker-build-push-image (registries: gar) is shared-workflows' GAR push
     # path; it wraps login-to-gar and authenticates as the repo's WIF principal.
     - name: Build and push to GAR
-      uses: grafana/shared-workflows/actions/docker-build-push-image@210fd8662ec62738ab1ae6d890ef3ffed5a77a86 # docker-build-push-image/v0.3.5
+      uses: grafana/shared-workflows/actions/docker-build-push-image@317d86931c8deacf670ceed195a81acebce14033 # docker-build-push-image/v1.0
       with:
         registries: gar
         gar-environment: prod
