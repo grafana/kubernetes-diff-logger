@@ -7,7 +7,7 @@ require (
 	github.com/go-test/deep v1.0.7
 	github.com/pkg/errors v0.9.1
 	github.com/ryanuber/go-glob v1.0.0
-	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.37.1
 	k8s.io/apimachinery v0.37.1
 	k8s.io/client-go v0.37.1
